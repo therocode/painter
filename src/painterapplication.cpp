@@ -14,9 +14,14 @@ PainterApplication::PainterApplication() :
 void PainterApplication::setup(const std::vector<std::string>& args)
 {
     mWindow.create(fea::VideoMode(800, 600), "painter");
+
     mRenderer.setup();
 
     mOriginal = makeTexture("image.png");
+    auto size = mOriginal.getSize();
+std::cout << "size is " << size.x << " " << size.y << "\n";
+exit(3);
+    mResult.create(size.x, size.y, fea::Color::Black, false, true);
 
     mDisplayQuad.setTexture(mResult);
     mDisplayQuad.setPosition({-800.0f / 2.0f, -600.0f / 2.0f});
