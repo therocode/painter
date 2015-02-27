@@ -26,6 +26,7 @@ void PainterApplication::loop()
         }
     }
 
+    mWindow.swapBuffers();
 }
 
 void PainterApplication::destroy()
