@@ -1,28 +1,39 @@
-# Compiled Object files
-*.slo
-*.lo
-*.o
-*.obj
-
-# Precompiled Headers
-*.gch
-*.pch
-
-# Compiled Dynamic libraries
-*.so
-*.dylib
-*.dll
-
-# Fortran module files
-*.mod
-
-# Compiled Static libraries
-*.lai
-*.la
+*.swp
+*.swo
+*~
+*CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
 *.a
-*.lib
-
-# Executables
-*.exe
-*.out
-*.app
+*.o
+bin/*
+lib/*
+doxy/gen/*
+remake.sh
+*HEJ*
+extlibs/angelscript/angelscript/projects
+extlibs/angelscript/samples
+extlibs/enet/CMakeFiles
+remake.sh
+*HEJ*
+*.obj
+*.7z
+o2
+32bit
+zlib-1.2.8/*
+*.sublime-workspace
+*.sublime-project
+.exrc
+*.dat
+*.idx
+*.vim
+*.exp
+docs/gen/*
+*.kdev4
+assets/*
+.gd/*
+pullassets.sh
+pushassets.sh
+tags
+driveassets/*
