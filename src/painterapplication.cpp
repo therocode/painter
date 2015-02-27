@@ -18,7 +18,7 @@ void PainterApplication::setup(const std::vector<std::string>& args)
 
     mOriginal = makeTexture("image.png");
 
-    mDisplayQuad.setTexture(mOriginal);
+    mDisplayQuad.setTexture(mResult);
     mDisplayQuad.setPosition({-800.0f / 2.0f, -600.0f / 2.0f});
 }
 
