@@ -10,19 +10,23 @@ Painter::Painter()  :
 
 void Painter::paint(const fea::Texture& original, fea::Texture& result, int32_t n)
 {
+    int32_t textureWidth = original.getSize().x;
+    int32_t textureHeight = original.getSize().y;
+
     std::cout << "Preparing to do " << n << " iterations! :)\n";
     std::uniform_int_distribution<> mColourRange(0, 255);
     //std::uniform_int_distribution<> mRadiusRange(5, 200);
     std::normal_distribution<> mRadiusRange(100, 30);
-    std::uniform_int_distribution<> mPosXRange(0, original.getSize().x);    // possibly extend these outside of the canvas border a bit
-    std::uniform_int_distribution<> mPosYRange(0, original.getSize().y);
-    int32_t pixelAmount = original.getSize().x * original.getSize().y;
+    std::uniform_int_distribution<> mPosXRange(0, textureWidth);    // possibly extend these outside of the canvas border a bit
+    std::uniform_int_distribution<> mPosYRange(0, textureHeight);
+    int32_t pixelAmount = textureWidth * textureHeight;
 
+    mCanvasTexture.create(textureWidth, textureHeight, fea::Color::Black, false, true);
+    const uint8_t* originalPixels = original.getPixelData();
+    uint8_t* resultPixels = result.getPixelData();
+    uint8_t* canvasPixels = mCanvasTexture.getPixelData();
     // copy the result texture to a new, canvas texture for drawing on
-    mCanvasTexture.create(result.getSize().x, result.getSize().y, fea::Color::Black, false, true);
-    uint8_t* sourcePixels = result.getPixelData();
-    uint8_t* targetPixels = mCanvasTexture.getPixelData();
-    std::copy(sourcePixels, sourcePixels + pixelAmount * 4, targetPixels);
+    std::copy(resultPixels, resultPixels + pixelAmount * 4, canvasPixels);
 
     for(int32_t i = 0; i < n; ++i)
     {
@@ -31,17 +35,25 @@ void Painter::paint(const fea::Texture& original, fea::Texture& result, int32_t 
 
         int32_t wStart = std::max(stroke.mPosX - stroke.mRadius, 0);
         int32_t hStart = std::max(stroke.mPosY - stroke.mRadius, 0);
-        int32_t wLimit = std::min(stroke.mPosX + stroke.mRadius, int32_t(mCanvasTexture.getSize().x) - 1);
-        int32_t hLimit = std::min(stroke.mPosY + stroke.mRadius, int32_t(mCanvasTexture.getSize().y) - 1);
+        int32_t wLimit = std::min(stroke.mPosX + stroke.mRadius, textureWidth - 1);
+        int32_t hLimit = std::min(stroke.mPosY + stroke.mRadius, textureHeight - 1);
 
         int32_t scoreDelta = 0;
+
+        int32_t pixelIndex = (hStart * textureWidth + wStart) * 4;
 
         for(int32_t h = hStart; h < hLimit; ++h)
         {
             for(int32_t w = wStart; w < wLimit; ++w)
             {
-                targetPixelColour = original.getPixel(w, h);
-                oldPixelColour = mCanvasTexture.getPixel(w, h);
+                targetPixelColour.setR(originalPixels[pixelIndex]);
+                targetPixelColour.setG(originalPixels[pixelIndex + 1]);
+                targetPixelColour.setB(originalPixels[pixelIndex + 2]);
+
+                oldPixelColour.setR(canvasPixels[pixelIndex]);
+                oldPixelColour.setG(canvasPixels[pixelIndex + 1]);
+                oldPixelColour.setB(canvasPixels[pixelIndex + 2]);
+
                 float deltaX = abs(stroke.mPosX - w);
                 float deltaY = abs(stroke.mPosY - h);
 
@@ -49,24 +61,27 @@ void Painter::paint(const fea::Texture& original, fea::Texture& result, int32_t 
                 float distanceAsDecimal = distanceFromCentre / float(stroke.mRadius);
                 lerpColour(stroke.mColour, oldPixelColour, distanceAsDecimal, newPixelColour);
                 
-                mCanvasTexture.setPixel(w, h, newPixelColour);
+                canvasPixels[pixelIndex] = newPixelColour.r();
+                canvasPixels[pixelIndex + 1] = newPixelColour.g();
+                canvasPixels[pixelIndex + 2] = newPixelColour.b();
 
                 scoreDelta += calculateScore(newPixelColour, targetPixelColour) - calculateScore(oldPixelColour, targetPixelColour);
+
+                pixelIndex += 4;
             }
+            pixelIndex += (textureWidth - (wLimit - wStart)) * 4;
         }
 
         if(scoreDelta < 0)
-        {//score was better, keep the image
+        {   //score was better, keep the image
             std::cout << "improved score by " << -scoreDelta << "\n";
-            uint8_t* sourcePixels = mCanvasTexture.getPixelData();
-            uint8_t* targetPixels = result.getPixelData();
-            std::copy(sourcePixels, sourcePixels + pixelAmount * 4, targetPixels);
+            // copying from canvas to result
+            std::copy(canvasPixels, canvasPixels + pixelAmount * 4, resultPixels);
         }
         else
-        {//discard changes
-            uint8_t* sourcePixels = result.getPixelData();
-            uint8_t* targetPixels = mCanvasTexture.getPixelData();
-            std::copy(sourcePixels, sourcePixels + pixelAmount * 4, targetPixels);
+        {   //discard changes
+            // copying from result to canvas
+            std::copy(resultPixels, resultPixels + pixelAmount * 4, canvasPixels);
         }
     }
 
