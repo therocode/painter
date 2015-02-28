@@ -12,7 +12,8 @@ void Painter::paint(const fea::Texture& original, fea::Texture& result, int32_t 
 {
     std::cout << "Preparing to do " << n << " iterations! :)\n";
     std::uniform_int_distribution<> mColourRange(0, 255);
-    std::uniform_int_distribution<> mRadiusRange(5, 20);
+    //std::uniform_int_distribution<> mRadiusRange(5, 200);
+    std::normal_distribution<> mRadiusRange(100, 100);
     std::uniform_int_distribution<> mPosXRange(0, original.getSize().x);    // possibly extend these outside of the canvas border a bit
     std::uniform_int_distribution<> mPosYRange(0, original.getSize().y);
     int32_t pixelAmount = original.getSize().x * original.getSize().y;

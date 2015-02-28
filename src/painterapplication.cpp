@@ -9,6 +9,7 @@ PainterApplication::PainterApplication() :
     mDisplayQuad({800, 600})
 {
     mWindow.create(fea::VideoMode(800, 600, 32), "painter");
+    mWindow.setFramerateLimit(60);
 }
 
 void PainterApplication::setup(const std::vector<std::string>& args)
@@ -38,7 +39,7 @@ void PainterApplication::loop()
     }
 
     //process
-    mPainter.paint(mOriginal, mResult, 1000);   
+    mPainter.paint(mOriginal, mResult, 100);   
 
     //output
     mRenderer->clear();
