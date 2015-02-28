@@ -34,5 +34,19 @@ void Painter::paint(const fea::Texture& original, fea::Texture& result, int n)
 
 int32_t Painter::calculateScore(const fea::Texture& source, const fea::Texture& target) const
 {
-    return 0;
+    int32_t pixelAmount = source.getSize().x * source.getSize().y;
+    fea::Color* sourcePixels = (fea::Color*) source.getPixelData();
+    fea::Color* targetPixels = (fea::Color*) target.getPixelData();
+
+    int32_t score = 0;
+
+    std::cout << "pixel amount is " << pixelAmount << "\n";
+    for(int32_t i = 0; i < pixelAmount; ++i)
+    {
+        score += abs((int32_t)sourcePixels[i].r() - (int32_t)targetPixels[i].r()) +
+                 abs((int32_t)sourcePixels[i].g() - (int32_t)targetPixels[i].g()) +
+                 abs((int32_t)sourcePixels[i].b() - (int32_t)targetPixels[i].b());
+    }
+
+    return score;
 }
