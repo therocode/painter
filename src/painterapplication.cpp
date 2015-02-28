@@ -8,7 +8,7 @@ PainterApplication::PainterApplication() :
     mInputHandler(new fea::SDL2InputBackend()),
     mDisplayQuad({800, 600})
 {
-    mWindow.create(fea::VideoMode(800, 600, 32), "painter", fea::Style::Default, fea::ContextSettings(32, 32, 0, 3, 3));
+    mWindow.create(fea::VideoMode(800, 600, 32), "painter");
 }
 
 void PainterApplication::setup(const std::vector<std::string>& args)
@@ -20,8 +20,7 @@ void PainterApplication::setup(const std::vector<std::string>& args)
     auto size = mOriginal.getSize();
     mResult.create(size.x, size.y, fea::Color::Black, false, true);
 
-    mDisplayQuad.setTexture(mOriginal);
-    mDisplayQuad.setPosition({-800.0f / 2.0f, -600.0f / 2.0f});
+    mDisplayQuad.setTexture(mResult);
 }
 
 void PainterApplication::loop()
@@ -39,9 +38,10 @@ void PainterApplication::loop()
     }
 
     //process
-    ///mPainter.paint(mOriginal, mResult, 1000);   
+    mPainter.paint(mOriginal, mResult, 1000);   
 
     //output
+    mRenderer->clear();
     mRenderer->queue(mDisplayQuad);
     mRenderer->render();
     mWindow.swapBuffers();

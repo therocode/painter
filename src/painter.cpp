@@ -44,7 +44,7 @@ void Painter::paint(const fea::Texture& original, fea::Texture& result, int n)
                 int yalle = std::max(std::min(stroke.mPosY - stroke.mRadius + h, int(mCanvasTexture.getSize().y) - 1), 0);
 
                 fea::Color pixelColour = stroke.mColour;
-                //pixelColour.setA(transparency);
+                pixelColour.setA(transparency);
                 mCanvasTexture.setPixel(xalle, yalle, pixelColour);
             }
         }
