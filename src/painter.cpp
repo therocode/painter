@@ -24,8 +24,10 @@ void Painter::paint(const fea::Texture& original, fea::Texture& result, int n)
 
     for(int i = 0; i < n; ++i)
     {
-        Stroke stroke(mColourRange(gen), mRadiusRange(gen), mPosXRange(gen), mPosYRange(gen));
+        fea::Color strokeColour(mColourRange(gen), mColourRange(gen), mColourRange(gen));
+        Stroke stroke(strokeColour, mRadiusRange(gen), mPosXRange(gen), mPosYRange(gen));
 
+        // change to make h and w actually the pixel position //
         for(int h = 0; h < (stroke.mRadius * 2); ++h)
         {
             for(int w = 0; w < (stroke.mRadius * 2); ++w)
@@ -37,12 +39,19 @@ void Painter::paint(const fea::Texture& original, fea::Texture& result, int n)
                 float distanceAsDecimal = distanceFromCentre / float(stroke.mRadius);
                 int transparency = int(lerp(0.0f, 255.0f, distanceAsDecimal));
 
+                // unnecessary when h and w pixel pos, do up there then //
+                int xalle = std::max(std::min(stroke.mPosX - stroke.mRadius + w, int(mCanvasTexture.getSize().x) - 1), 0);
+                int yalle = std::max(std::min(stroke.mPosY - stroke.mRadius + h, int(mCanvasTexture.getSize().y) - 1), 0);
+
                 fea::Color pixelColour = stroke.mColour;
-                pixelColour.setA(transparency);
-                mCanvasTexture.setPixel(stroke.mPosX + w, stroke.mPosY + h, pixelColour);
+                //pixelColour.setA(transparency);
+                mCanvasTexture.setPixel(xalle, yalle, pixelColour);
             }
         }
     }
+
+    mCanvasTexture.update();
+    result.create(result.getSize().x, result.getSize().y, mCanvasTexture.getPixelData(), false, true);
 }
 
 float Painter::lerp(float a, float b, float amount)

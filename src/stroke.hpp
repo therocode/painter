@@ -3,7 +3,7 @@
 
 struct Stroke
 {
-    Stroke(int colour, int radius, int posX, int posY);
+    Stroke(fea::Color colour, int radius, int posX, int posY);
 
     fea::Color mColour;
     int mRadius;
