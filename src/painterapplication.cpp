@@ -20,7 +20,7 @@ void PainterApplication::setup(const std::vector<std::string>& args)
     auto size = mOriginal.getSize();
     mResult.create(size.x, size.y, fea::Color::Black, false, true);
 
-    mDisplayQuad.setTexture(mResult);
+    mDisplayQuad.setTexture(mOriginal);
     mDisplayQuad.setPosition({-800.0f / 2.0f, -600.0f / 2.0f});
 }
 
@@ -39,7 +39,7 @@ void PainterApplication::loop()
     }
 
     //process
-    mPainter.paint(mOriginal, mResult, 1000);   
+    ///mPainter.paint(mOriginal, mResult, 1000);   
 
     //output
     mRenderer->queue(mDisplayQuad);
