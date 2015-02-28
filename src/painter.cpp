@@ -13,10 +13,10 @@ void Painter::paint(const fea::Texture& original, fea::Texture& result, int32_t 
     int32_t textureWidth = original.getSize().x;
     int32_t textureHeight = original.getSize().y;
 
-    std::cout << "Preparing to do " << n << " iterations! :)\n";
+    //std::cout << "Preparing to do " << n << " iterations! :)\n";
     std::uniform_int_distribution<> mColourRange(0, 255);
     //std::uniform_int_distribution<> mRadiusRange(5, 200);
-    std::normal_distribution<> mRadiusRange(100, 30);
+    std::normal_distribution<> mRadiusRange(60, 30);
     std::uniform_int_distribution<> mPosXRange(0, textureWidth);    // possibly extend these outside of the canvas border a bit
     std::uniform_int_distribution<> mPosYRange(0, textureHeight);
     int32_t pixelAmount = textureWidth * textureHeight;
@@ -76,7 +76,7 @@ void Painter::paint(const fea::Texture& original, fea::Texture& result, int32_t 
 
         if(scoreDelta < 0)
         {   //score was better, keep the image
-            std::cout << "improved score by " << -scoreDelta << "\n";
+            //std::cout << "improved score by " << -scoreDelta << "\n";
             // copying from canvas to result
             std::copy(canvasPixels, canvasPixels + pixelAmount * 4, resultPixels);
         }
