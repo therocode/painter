@@ -24,10 +24,6 @@ void Painter::paint(const fea::Texture& original, fea::Texture& result, int32_t 
     uint8_t* targetPixels = mCanvasTexture.getPixelData();
     std::copy(sourcePixels, sourcePixels + pixelAmount * 4, targetPixels);
 
-    int32_t currentScore = calculateScore(result, original);
-
-    std::cout << "Starting score is " << currentScore << "\n";
-
     for(int32_t i = 0; i < n; ++i)
     {
         fea::Color strokeColour(mColourRange(gen), mColourRange(gen), mColourRange(gen));
@@ -38,25 +34,33 @@ void Painter::paint(const fea::Texture& original, fea::Texture& result, int32_t 
         int32_t wLimit = std::min(stroke.mPosX + stroke.mRadius, int32_t(mCanvasTexture.getSize().x) - 1);
         int32_t hLimit = std::min(stroke.mPosY + stroke.mRadius, int32_t(mCanvasTexture.getSize().y) - 1);
 
+        int32_t scoreDelta = 0;
+        fea::Color targetPixelColour;
+        fea::Color oldPixelColour;
+        fea::Color newPixelColour;
+
         for(int32_t h = hStart; h < hLimit; ++h)
         {
             for(int32_t w = wStart; w < wLimit; ++w)
             {
+                targetPixelColour = original.getPixel(w, h);
+                oldPixelColour = mCanvasTexture.getPixel(w, h);
                 float deltaX = abs(stroke.mPosX - w);
                 float deltaY = abs(stroke.mPosY - h);
 
                 float distanceFromCentre = std::hypot(deltaX, deltaY);
                 float distanceAsDecimal = distanceFromCentre / float(stroke.mRadius);
-                fea::Color pixelColour = lerpColour(stroke.mColour, mCanvasTexture.getPixel(w, h), distanceAsDecimal);
+                newPixelColour = lerpColour(stroke.mColour, oldPixelColour, distanceAsDecimal);
                 
-                mCanvasTexture.setPixel(w, h, pixelColour);
+                mCanvasTexture.setPixel(w, h, newPixelColour);
+
+                scoreDelta += calculateScore(newPixelColour, targetPixelColour) - calculateScore(oldPixelColour, targetPixelColour);
             }
         }
 
-        int32_t newScore = calculateScore(mCanvasTexture, original);
-
-        if(newScore < currentScore)
+        if(scoreDelta < 0)
         {//score was better, keep the image
+            std::cout << "improved score by " << -scoreDelta << "\n";
             uint8_t* sourcePixels = mCanvasTexture.getPixelData();
             uint8_t* targetPixels = result.getPixelData();
             std::copy(sourcePixels, sourcePixels + pixelAmount * 4, targetPixels);
@@ -86,20 +90,27 @@ fea::Color Painter::lerpColour(const fea::Color& a, const fea::Color& b, float a
     return fea::Color(red, green, blue);
 }
 
-int32_t Painter::calculateScore(const fea::Texture& source, const fea::Texture& target) const
+int32_t Painter::calculateScore(const fea::Color& source, const fea::Color& target) const
 {
-    int32_t pixelAmount = source.getSize().x * source.getSize().y;
-    fea::Color* sourcePixels = (fea::Color*) source.getPixelData();
-    fea::Color* targetPixels = (fea::Color*) target.getPixelData();
-
-    int32_t score = 0;
-
-    for(int32_t i = 0; i < pixelAmount; ++i)
-    {
-        score += abs((int32_t)sourcePixels[i].r() - (int32_t)targetPixels[i].r()) +
-                 abs((int32_t)sourcePixels[i].g() - (int32_t)targetPixels[i].g()) +
-                 abs((int32_t)sourcePixels[i].b() - (int32_t)targetPixels[i].b());
-    }
-
-    return score;
+    return abs((int32_t)source.r() - (int32_t)target.r()) +
+           abs((int32_t)source.g() - (int32_t)target.g()) +
+           abs((int32_t)source.b() - (int32_t)target.b());
 }
+
+//int32_t Painter::calculateScore(const fea::Texture& source, const fea::Texture& target) const
+//{
+//    int32_t pixelAmount = source.getSize().x * source.getSize().y;
+//    fea::Color* sourcePixels = (fea::Color*) source.getPixelData();
+//    fea::Color* targetPixels = (fea::Color*) target.getPixelData();
+//
+//    int32_t score = 0;
+//
+//    for(int32_t i = 0; i < pixelAmount; ++i)
+//    {
+//        score += abs((int32_t)sourcePixels[i].r() - (int32_t)targetPixels[i].r()) +
+//                 abs((int32_t)sourcePixels[i].g() - (int32_t)targetPixels[i].g()) +
+//                 abs((int32_t)sourcePixels[i].b() - (int32_t)targetPixels[i].b());
+//    }
+//
+//    return score;
+//}
