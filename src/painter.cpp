@@ -42,6 +42,8 @@ void Painter::paint(const fea::Texture& original, fea::Texture& result, int32_t 
 
         int32_t pixelIndex = (hStart * textureWidth + wStart) * 4;
 
+        float inverseStrokeRadius = 1.0f / stroke.mRadius;
+
         for(int32_t h = hStart; h < hLimit; ++h)
         {
             for(int32_t w = wStart; w < wLimit; ++w)
@@ -54,11 +56,11 @@ void Painter::paint(const fea::Texture& original, fea::Texture& result, int32_t 
                 oldPixelColour.setG(canvasPixels[pixelIndex + 1]);
                 oldPixelColour.setB(canvasPixels[pixelIndex + 2]);
 
-                float deltaX = abs(stroke.mPosX - w);
-                float deltaY = abs(stroke.mPosY - h);
+                float deltaX = stroke.mPosX - w;
+                float deltaY = stroke.mPosY - h;
 
                 float distanceFromCentre = std::hypot(deltaX, deltaY);
-                float distanceAsDecimal = distanceFromCentre / float(stroke.mRadius);
+                float distanceAsDecimal = distanceFromCentre * inverseStrokeRadius;
                 lerpColour(stroke.mColour, oldPixelColour, distanceAsDecimal, newPixelColour);
                 
                 canvasPixels[pixelIndex] = newPixelColour.r();
