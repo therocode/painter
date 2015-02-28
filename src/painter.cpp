@@ -13,7 +13,7 @@ void Painter::paint(const fea::Texture& original, fea::Texture& result, int32_t 
     std::cout << "Preparing to do " << n << " iterations! :)\n";
     std::uniform_int_distribution<> mColourRange(0, 255);
     //std::uniform_int_distribution<> mRadiusRange(5, 200);
-    std::normal_distribution<> mRadiusRange(100, 100);
+    std::normal_distribution<> mRadiusRange(100, 30);
     std::uniform_int_distribution<> mPosXRange(0, original.getSize().x);    // possibly extend these outside of the canvas border a bit
     std::uniform_int_distribution<> mPosYRange(0, original.getSize().y);
     int32_t pixelAmount = original.getSize().x * original.getSize().y;
@@ -47,9 +47,9 @@ void Painter::paint(const fea::Texture& original, fea::Texture& result, int32_t 
 
                 float distanceFromCentre = std::hypot(deltaX, deltaY);
                 float distanceAsDecimal = distanceFromCentre / float(stroke.mRadius);
-                fea::Color pixelColour = lerpColour(stroke.mColour, mCanvasTexture.getPixel(w, h), distanceAsDecimal);
+                lerpColour(stroke.mColour, mCanvasTexture.getPixel(w, h), distanceAsDecimal, pixelPainted);
                 
-                mCanvasTexture.setPixel(w, h, pixelColour);
+                mCanvasTexture.setPixel(w, h, pixelPainted);
             }
         }
 
@@ -72,7 +72,7 @@ void Painter::paint(const fea::Texture& original, fea::Texture& result, int32_t 
     result.update();
 }
 
-fea::Color Painter::lerpColour(const fea::Color& a, const fea::Color& b, float amount)
+void Painter::lerpColour(const fea::Color& a, const fea::Color& b, float amount, fea::Color& resultColour)
 {
     amount = std::max(std::min(amount, 1.0f), 0.0f);
     float deltaR = int32_t(b.r()) - int32_t(a.r());
@@ -83,7 +83,9 @@ fea::Color Painter::lerpColour(const fea::Color& a, const fea::Color& b, float a
     uint8_t green = a.g() + (deltaG * amount);
     uint8_t blue  = a.b() + (deltaB * amount);
 
-    return fea::Color(red, green, blue);
+    resultColour.setR(red);
+    resultColour.setG(green);
+    resultColour.setB(blue);
 }
 
 int32_t Painter::calculateScore(const fea::Texture& source, const fea::Texture& target) const
