@@ -15,8 +15,6 @@ fea::Texture makeTexture(std::string path)
     if(error) std::cout << "decoder error " << error << ": " << lodepng_error_text(error) << std::endl;
 
     //the pixels are now in the vector "image", 4 bytes per pixel, ordered RGBARGBA..., use it as texture, draw it, ...
-    std::cout << "creating texture of " << width << " height " << height << "\n";
     texture.create(width, height, &image[0], false, true);
-    std::cout << "created it was " << texture.getSize().x << " " << texture.getSize().y << "\n";
     return texture;
 }

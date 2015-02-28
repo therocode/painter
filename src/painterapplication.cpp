@@ -6,21 +6,18 @@
 PainterApplication::PainterApplication() :
     mWindow(new fea::SDL2WindowBackend()),
     mInputHandler(new fea::SDL2InputBackend()),
-    mRenderer(fea::Viewport({800, 600}, {0, 0}, fea::Camera({800.0f / 2.0f, 600.0f / 2.0f}))),
     mDisplayQuad({800, 600})
 {
+    mWindow.create(fea::VideoMode(800, 600, 32), "painter", fea::Style::Default, fea::ContextSettings(32, 32, 0, 3, 3));
 }
 
 void PainterApplication::setup(const std::vector<std::string>& args)
 {
-    mWindow.create(fea::VideoMode(800, 600), "painter");
-
-    mRenderer.setup();
+    mRenderer = std::unique_ptr<fea::Renderer2D>(new fea::Renderer2D(fea::Viewport({800, 600}, {0, 0}, fea::Camera({800.0f / 2.0f, 600.0f / 2.0f}))));
+    mRenderer->setup();
 
     mOriginal = makeTexture("image.png");
     auto size = mOriginal.getSize();
-std::cout << "size is " << size.x << " " << size.y << "\n";
-exit(3);
     mResult.create(size.x, size.y, fea::Color::Black, false, true);
 
     mDisplayQuad.setTexture(mResult);
@@ -45,8 +42,8 @@ void PainterApplication::loop()
     mPainter.paint(mOriginal, mResult, 1000);   
 
     //output
-    mRenderer.queue(mDisplayQuad);
-    mRenderer.render();
+    mRenderer->queue(mDisplayQuad);
+    mRenderer->render();
     mWindow.swapBuffers();
 }
 

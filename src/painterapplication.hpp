@@ -3,6 +3,7 @@
 #include <fea/structure.hpp>
 #include <fea/userinterface.hpp>
 #include "painter.hpp"
+#include <memory>
 
 class PainterApplication : public fea::Application
 {
@@ -20,5 +21,5 @@ class PainterApplication : public fea::Application
         Painter mPainter;
 
         fea::Quad mDisplayQuad;
-        fea::Renderer2D mRenderer;
+        std::unique_ptr<fea::Renderer2D> mRenderer;
 };

@@ -15,9 +15,15 @@ endif()
 file(GLOB_RECURSE source_files "src/*.cpp")
 file(GLOB_RECURSE header_files "src/*.hpp")
 
+find_package(GLM REQUIRED)
+if(GLM_FOUND)
+    include_directories(${GLM_INCLUDE_DIRS})
+endif()
+
 find_package(Featherkit COMPONENTS rendering ui structure entity sdl2 REQUIRED)
 if(FEATHERKIT_FOUND)
     include_directories(${FEATHERKIT_INCLUDE_DIRS})
 endif()
+
 add_executable(${project_name} ${header_files} ${source_files})
 target_link_libraries(${project_name} ${FEATHERKIT_LIBRARIES})
