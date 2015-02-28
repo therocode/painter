@@ -15,9 +15,13 @@ void Painter::paint(const fea::Texture& original, fea::Texture& result, int32_t 
     std::uniform_int_distribution<> mRadiusRange(5, 20);
     std::uniform_int_distribution<> mPosXRange(0, original.getSize().x);    // possibly extend these outside of the canvas border a bit
     std::uniform_int_distribution<> mPosYRange(0, original.getSize().y);
+    int32_t pixelAmount = original.getSize().x * original.getSize().y;
 
     // copy the result texture to a new, canvas texture for drawing on
-    mCanvasTexture.create(result.getSize().x, result.getSize().y, result.getPixelData(), false, true);
+    mCanvasTexture.create(result.getSize().x, result.getSize().y, fea::Color::Black, false, true);
+    uint8_t* sourcePixels = result.getPixelData();
+    uint8_t* targetPixels = mCanvasTexture.getPixelData();
+    std::copy(sourcePixels, sourcePixels + pixelAmount * 4, targetPixels);
 
     int32_t currentScore = calculateScore(result, original);
 
@@ -47,10 +51,24 @@ void Painter::paint(const fea::Texture& original, fea::Texture& result, int32_t 
                 mCanvasTexture.setPixel(w, h, pixelColour);
             }
         }
+
+        int32_t newScore = calculateScore(mCanvasTexture, original);
+
+        if(newScore < currentScore)
+        {//score was better, keep the image
+            uint8_t* sourcePixels = mCanvasTexture.getPixelData();
+            uint8_t* targetPixels = result.getPixelData();
+            std::copy(sourcePixels, sourcePixels + pixelAmount * 4, targetPixels);
+        }
+        else
+        {//discard changes
+            uint8_t* sourcePixels = result.getPixelData();
+            uint8_t* targetPixels = mCanvasTexture.getPixelData();
+            std::copy(sourcePixels, sourcePixels + pixelAmount * 4, targetPixels);
+        }
     }
 
-    mCanvasTexture.update();
-    result.create(result.getSize().x, result.getSize().y, mCanvasTexture.getPixelData(), false, true);
+    result.update();
 }
 
 fea::Color Painter::lerpColour(const fea::Color& a, const fea::Color& b, float amount)
@@ -75,7 +93,6 @@ int32_t Painter::calculateScore(const fea::Texture& source, const fea::Texture& 
 
     int32_t score = 0;
 
-    std::cout << "pixel amount is " << pixelAmount << "\n";
     for(int32_t i = 0; i < pixelAmount; ++i)
     {
         score += abs((int32_t)sourcePixels[i].r() - (int32_t)targetPixels[i].r()) +
