@@ -13,6 +13,7 @@ class Painter
         int32_t calculateScore(const fea::Texture& source, const fea::Texture& target) const;
         std::random_device rd;
         std::mt19937 gen;
+        float lerp(float a, float b, float amount);
 
         fea::Texture mCanvasTexture;
 };
